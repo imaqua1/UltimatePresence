@@ -1,0 +1,64 @@
+name: Release
+
+# Push a version tag (e.g. `git tag v0.6.0 && git push origin v0.6.0`) to build, sign and
+# publish a release. Installed apps pick it up through the updater (latest.json).
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install the Tauri CLI
+        run: npm ci
+
+      - name: Tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Roblox plugin and Discord images
+        run: |
+          node tools/build-plugin.mjs
+          node tools/make-state-icons.mjs
+          node tools/make-blender-icons.mjs
+
+      - name: Build, sign and publish
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: UltimatePresence ${{ github.ref_name }}
+          releaseBody: |
+            **New here?** Download `UltimatePresence_*_x64-setup.exe` below and run it. Then open the app and follow **Get set up** on its Home page: it installs the Roblox Studio plugin and the Blender script for you.
+
+            **Already installed?** The app updates itself (Settings → Updates).
+
+            Windows may warn that the installer isn't signed: click *More info → Run anyway*.
+          releaseDraft: false
+          prerelease: false
+          includeUpdaterJson: true
+
+      - name: Attach the Roblox plugin and Blender script
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.ref_name }}" dist/UltimatePresence.rbxmx blender/ultimate_presence.py --clobber

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+src-tauri/target/
+src-tauri/gen/
+reference/
+*.log
+
+# Never commit signing keys
+*.key
+.tauri/

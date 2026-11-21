@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "UltimatePresence",
+  "version": "0.6.0",
+  "identifier": "com.ultimatepresence.desktop",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: https:; connect-src ipc: http://ipc.localhost https://discord.com; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "publisher": "UltimatePresence",
+    "copyright": "Copyright (c) 2026 UltimatePresence contributors. Based on StudioPresence, Copyright (c) 2022 iArxic (ISC).",
+    "category": "Utility",
+    "shortDescription": "Discord Rich Presence for Roblox Studio",
+    "longDescription": "Runs in the system tray and shows what you're doing in Roblox Studio on your Discord profile. Works with the StudioPresence plugin.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../dist/discord-assets/icon_*.png": "discord-assets/roblox-studio/",
+      "../dist/discord-assets/blender/*.png": "discord-assets/blender/",
+      "../blender/ultimate_presence.py": "blender-addon/ultimate_presence.py",
+      "../dist/UltimatePresence.rbxmx": "studio-plugin/UltimatePresence.rbxmx"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "installerIcon": "icons/icon.ico",
+        "startMenuFolder": "UltimatePresence"
+      }
+    },
+    "createUpdaterArtifacts": true
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IENGOTU5MUQ2NDdBM0QxMUEKUldRYTBhTkgxcEdWenl6UlBEMnpoc1pQLzVNYklhbXUvZDBXMU0vbTJ2dVVvUEZ0VEJLY1pDUzUK",
+      "endpoints": [
+        "https://github.com/imaqua1/UltimatePresence/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    }
+  }
+}
