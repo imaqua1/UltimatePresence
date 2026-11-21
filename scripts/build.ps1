@@ -1,4 +1,4 @@
-# Release build: runs tests, builds the app, and collects the installer + portable exe in dist/.
+# Release build: runs tests, builds the signed app, and puts the installer in dist/
 # Usage: npm run release
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")
@@ -27,6 +27,5 @@ if ($LASTEXITCODE -ne 0) { throw "build failed" }
 
 New-Item -ItemType Directory -Force dist | Out-Null
 Copy-Item "src-tauri\target\release\bundle\nsis\UltimatePresence_${version}_x64-setup.exe" dist\ -Force
-Copy-Item "src-tauri\target\release\ultimate-presence.exe" "dist\UltimatePresence-$version-portable.exe" -Force
 
 Get-ChildItem dist | Select-Object Name, @{ n = "Size (MB)"; e = { [math]::Round($_.Length / 1MB, 2) } } | Format-Table

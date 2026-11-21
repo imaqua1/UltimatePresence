@@ -38,7 +38,7 @@ Tools with *Desktop development with C++*, [Node.js](https://nodejs.org) 18+.
 | `npm install` | Installs the Tauri CLI |
 | `npm run plugin` | Builds `dist/UltimatePresence.rbxmx` (run once before `dev`; no Rojo needed) |
 | `npm run dev` | Debug build with a console window |
-| `npm run release` | Tests, signed release build; installer and portable exe land in `dist/` |
+| `npm run release` | Tests, signed release build; the installer lands in `dist/` |
 | `cargo test --manifest-path src-tauri/Cargo.toml` | Unit tests (protocol quirks, wording, Blender categories) |
 
 `npm run plugin:install` also copies the plugin into your Studio Plugins folder.
