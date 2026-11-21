@@ -51,6 +51,8 @@ pub struct Core {
     pub focus: HashMap<&'static str, Instant>,
     /// The app whose window is in front right now, if it's one we know.
     pub focused: Option<&'static str>,
+    /// When you last typed or moved the mouse with each app's window in front.
+    pub input: HashMap<&'static str, Instant>,
     /// A newer UltimatePresence version on GitHub, if any.
     pub update_available: Option<String>,
     pub discord: DiscordStatus,
@@ -130,6 +132,7 @@ impl Core {
             blender: BlenderState::default(),
             focus: HashMap::new(),
             focused: None,
+            input: HashMap::new(),
             update_available: None,
             discord: DiscordStatus::Disconnected,
             autostart,
@@ -189,6 +192,12 @@ impl Core {
         self.settings_path.parent().map(PathBuf::from)
     }
 
+    /// True when you haven't used this app (keyboard or mouse, with its window in front)
+    /// for IDLE_AFTER. Using other programs doesn't count.
+    fn away(&self, id: &str) -> bool {
+        self.input.get(id).is_some_and(|t| t.elapsed() >= studio::IDLE_AFTER)
+    }
+
     /// A source's activity after its own settings, ignoring pause.
     fn presented(&self, id: &str) -> studio::Presented {
         let s = self.settings.source(id);
@@ -196,8 +205,8 @@ impl Core {
             return studio::Presented { activity: None, reason: None };
         }
         match id {
-            ROBLOX_STUDIO => studio::present(&self.studio, &s, away()),
-            BLENDER => blender::present(&self.blender, &s, away()),
+            ROBLOX_STUDIO => studio::present(&self.studio, &s, self.away(id)),
+            BLENDER => blender::present(&self.blender, &s, self.away(id)),
             // Planned sources have no runtime yet.
             _ => studio::Presented { activity: None, reason: None },
         }
@@ -405,9 +414,4 @@ pub fn on_discord_event(app: &AppHandle, ev: DiscordEvent) {
         DiscordEvent::Status(s) => c.discord = s,
         DiscordEvent::Log(level, msg) => c.push_log(level, msg),
     });
-}
-
-/// True when there has been no keyboard or mouse input for IDLE_AFTER.
-fn away() -> bool {
-    crate::platform::input_idle_for() >= studio::IDLE_AFTER
 }

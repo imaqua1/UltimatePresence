@@ -429,7 +429,7 @@ pub fn render_as(raw: &Activity, s: &SourceSettings, task_since_ms: Option<i64>,
     }
 }
 
-/// `away`: no keyboard or mouse input for IDLE_AFTER. (The plugin only reports changes to
+/// `away`: no keyboard or mouse input in Studio for IDLE_AFTER. (The plugin only reports changes to
 /// the script, line or playtest, so its silence can't tell building from being away.)
 pub fn present(st: &StudioState, s: &SourceSettings, away: bool) -> Presented {
     let none = |reason: Option<String>| Presented { activity: None, reason };
@@ -736,14 +736,31 @@ async fn watch(app: AppHandle) {
     let mut tick = tokio::time::interval(Duration::from_secs(1));
     loop {
         tick.tick().await;
-        let (names, foreground) = tauri::async_runtime::spawn_blocking(|| (platform::process_names(), platform::foreground_process_name()))
-            .await
-            .unwrap_or_default();
+        let (names, foreground, input_idle) = tauri::async_runtime::spawn_blocking(|| {
+            (platform::process_names(), platform::foreground_process_name(), platform::input_idle_for())
+        })
+        .await
+        .unwrap_or_default();
         let running = names.iter().any(|n| platform::is_studio_process(n));
         let blender_running = names.iter().any(|n| platform::is_blender_process(n));
         let focused = foreground.as_deref().and_then(platform::source_for_process);
         let old_server = names.iter().any(|n| n.to_ascii_lowercase().starts_with("studiopresence"));
         let now = Instant::now();
+
+        // Idle tracking: input only counts for the app whose window is in front. A freshly
+        // opened app starts as active. (Checked every second, so "recent" is under 2 s.)
+        {
+            let mut c = lock_core(&app);
+            if let Some(id) = focused.filter(|_| input_idle < Duration::from_secs(2)) {
+                c.input.insert(id, now);
+            }
+            if running && !c.studio.running {
+                c.input.insert(crate::sources::ROBLOX_STUDIO, now);
+            }
+            if blender_running && !c.blender.running {
+                c.input.insert(crate::sources::BLENDER, now);
+            }
+        }
 
         let needs_update = {
             let c = lock_core(&app);

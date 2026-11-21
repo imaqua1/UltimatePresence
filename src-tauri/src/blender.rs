@@ -397,7 +397,7 @@ pub fn should_time_out(st: &BlenderState, now: Instant) -> bool {
         && st.last_request.map_or(true, |t| now.duration_since(t) >= Duration::from_secs(4))
 }
 
-/// `away`: no keyboard or mouse input for IDLE_AFTER. A render in progress never counts as idle.
+/// `away`: no keyboard or mouse input in Blender for IDLE_AFTER. A render in progress never counts as idle.
 pub fn present(st: &BlenderState, s: &SourceSettings, away: bool) -> Presented {
     let none = |reason: Option<String>| Presented { activity: None, reason };
     let Some(mut p) = st.payload.as_ref() else { return none(None) };

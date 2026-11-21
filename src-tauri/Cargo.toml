@@ -1,6 +1,6 @@
 [package]
 name = "ultimate-presence"
-version = "0.6.1"
+version = "0.6.2"
 description = "Discord Rich Presence for Roblox Studio (and more, later)"
 license = "ISC"
 edition = "2021"

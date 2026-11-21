@@ -4699,7 +4699,7 @@ dependencies = [
 
 [[package]]
 name = "ultimate-presence"
-version = "0.6.1"
+version = "0.6.2"
 dependencies = [
  "serde",
  "serde_json",

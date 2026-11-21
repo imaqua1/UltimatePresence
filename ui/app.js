@@ -58,7 +58,7 @@ const APPS = {
       ["Moon Animator 2", "Works with either plugin", "Animating", "ok"],
       ["Eclipse Animator", "Needs the UltimatePresence plugin", "Animating", "ok"],
       ["Qwinkle’s Part-Icles", "Needs the UltimatePresence plugin", "Making VFX", "ok"],
-      ["Idle", "After 5 minutes away from keyboard and mouse", "Idle", "ok"],
+      ["Idle", "After 5 minutes without using Studio", "Idle", "ok"],
     ],
     appName: "Roblox Studio",
   },
@@ -123,7 +123,7 @@ const APPS = {
       ["Rendering", "While a render runs, with frame progress", "Rendering · Frame 120 of 250", "ok"],
       ["Compositing, geometry nodes, scripting, video", "Their workspaces and editors", "Compositing", "ok"],
       ["Grease Pencil", "Draw and edit modes", "Drawing", "ok"],
-      ["Idle", "After 5 minutes away from keyboard and mouse (not while rendering)", "Idle", "ok"],
+      ["Idle", "After 5 minutes without using Blender (not while rendering)", "Idle", "ok"],
     ],
     appName: "Blender",
   },
@@ -1077,7 +1077,7 @@ function behaviourTab(id) {
   });
 
   const el = h("div", { style: "display:flex;flex-direction:column;gap:56px" },
-    h("section", {}, sectionHead("When to ", "After 5 minutes without keyboard or mouse input your status switches to Idle, with the Zzz icon.", "share"),
+    h("section", {}, sectionHead("When to ", "After 5 minutes without typing or moving the mouse in the app, your status switches to Idle, with the Zzz icon. Using other programs doesn't count.", "share"),
       h("div", { class: "group" }, switchSetting(m.testing[0], m.testing[1], testing))),
     h("section", {}, sectionHead("Profile ", "Up to two buttons under your status. Others see them; you can’t click your own.", "buttons"),
       h("div", { class: "group" }, h("div", { class: "setting stack" },

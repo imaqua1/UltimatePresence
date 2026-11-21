@@ -8,7 +8,7 @@ use crate::blender;
 use crate::studio::{self, Kind, KINDS};
 use serde::Serialize;
 use std::collections::BTreeMap;
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 use tauri_plugin_autostart::ManagerExt as _;
 use tauri_plugin_opener::OpenerExt as _;
 
