@@ -340,7 +340,7 @@ pub fn state_icon(kind: Kind, s: &SourceSettings) -> Option<&'static str> {
 /// The small badge is always Roblox Studio's own icon.
 pub const STUDIO_BADGE: &str = "studio";
 
-/// You count as idle after this long without changes; your status then says "Idle".
+/// You count as idle after this long without keyboard or mouse input; your status then says "Idle".
 pub const IDLE_AFTER: Duration = Duration::from_secs(5 * 60);
 
 /// Hover text on every large image. (The original plugin sent "StudioPresence by iArxic".)
@@ -356,7 +356,7 @@ pub fn render(raw: &Activity, s: &SourceSettings, task_since_ms: Option<i64>) ->
     render_as(raw, s, task_since_ms, false)
 }
 
-/// Wording for the idle state ("away" after a while without changes).
+/// Wording for the idle state (away from the keyboard for a while).
 pub fn idle_preset(style: &str) -> Template {
     let t = |top: &str, bottom: &str| Template { top: top.into(), bottom: bottom.into() };
     match style {
@@ -429,7 +429,9 @@ pub fn render_as(raw: &Activity, s: &SourceSettings, task_since_ms: Option<i64>,
     }
 }
 
-pub fn present(st: &StudioState, s: &SourceSettings, now: Instant) -> Presented {
+/// `away`: no keyboard or mouse input for IDLE_AFTER. (The plugin only reports changes to
+/// the script, line or playtest, so its silence can't tell building from being away.)
+pub fn present(st: &StudioState, s: &SourceSettings, away: bool) -> Presented {
     let none = |reason: Option<String>| Presented { activity: None, reason };
     let Some(mut raw) = st.activity.as_ref() else { return none(None) };
 
@@ -439,12 +441,10 @@ pub fn present(st: &StudioState, s: &SourceSettings, now: Instant) -> Presented 
             None => return none(Some("Playtesting is hidden".into())),
         }
     }
-    // The plugin only sends when something changes, so the last request is the last change.
-    let idle = st.last_request.is_some_and(|t| now.duration_since(t) >= IDLE_AFTER);
     if is_hidden_place(s, parse(raw).place.as_deref()) {
         return none(Some("Hidden while you’re in this place".into()));
     }
-    Presented { activity: Some(render_as(raw, s, st.task_since_ms, idle)), reason: None }
+    Presented { activity: Some(render_as(raw, s, st.task_since_ms, away)), reason: None }
 }
 
 /// Sample plugin data for previews when Studio isn't connected.
@@ -942,19 +942,19 @@ mod tests {
         apply_request(&mut st, &body("Testing"), t0);
 
         let s = SourceSettings { show_testing: false, ..Default::default() };
-        let p = present(&st, &s, t0);
+        let p = present(&st, &s, false);
         assert_eq!(p.activity.unwrap().details.as_deref(), Some("Main (Line 1 / 2)"), "falls back to last edit");
 
         let s = SourceSettings { hidden_places: vec!["my obby".into()], ..Default::default() };
-        assert!(present(&st, &s, t0).activity.is_none());
+        assert!(present(&st, &s, false).activity.is_none());
 
-        // After 5 minutes without changes you're shown as Idle with the Zzz icon (own Discord app).
+        // Away from the keyboard: Idle with the Zzz icon (own Discord app).
         let away = SourceSettings { application_id: "157263149535120589".into(), ..Default::default() };
-        let a = present(&st, &away, t0 + Duration::from_secs(301)).activity.unwrap();
+        let a = present(&st, &away, true).activity.unwrap();
         assert_eq!(a.details.as_deref(), Some("Idle"));
         assert_eq!(a.state.as_deref(), Some("Workspace: My Obby"));
         assert_eq!(a.large_image.as_deref(), Some("icon_idle"));
-        assert!(present(&st, &away, t0 + Duration::from_secs(60)).activity.unwrap().details.as_deref() != Some("Idle"));
+        assert!(present(&st, &away, false).activity.unwrap().details.as_deref() != Some("Idle"));
     }
 
     #[test]

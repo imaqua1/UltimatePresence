@@ -77,6 +77,28 @@ pub fn foreground_process_name() -> Option<String> {
     None
 }
 
+/// Time since the last keyboard or mouse input anywhere on this PC.
+#[cfg(windows)]
+pub fn input_idle_for() -> std::time::Duration {
+    use windows_sys::Win32::System::SystemInformation::GetTickCount;
+    use windows_sys::Win32::UI::Input::KeyboardAndMouse::{GetLastInputInfo, LASTINPUTINFO};
+    let mut info = LASTINPUTINFO { cbSize: std::mem::size_of::<LASTINPUTINFO>() as u32, dwTime: 0 };
+    // SAFETY: plain Win32 queries into a correctly sized struct.
+    let ticks = unsafe {
+        if GetLastInputInfo(&mut info) == 0 {
+            return std::time::Duration::ZERO;
+        }
+        GetTickCount()
+    };
+    // Both are milliseconds since boot and wrap after 49.7 days, hence wrapping_sub.
+    std::time::Duration::from_millis(ticks.wrapping_sub(info.dwTime) as u64)
+}
+
+#[cfg(not(windows))]
+pub fn input_idle_for() -> std::time::Duration {
+    std::time::Duration::ZERO
+}
+
 pub fn is_studio_process(name: &str) -> bool {
     let n = name.to_ascii_lowercase();
     n == "robloxstudiobeta.exe" || n == "robloxstudio.exe" || n == "robloxstudio"

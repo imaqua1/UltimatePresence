@@ -9,7 +9,7 @@ profile. It sits in the system tray and updates itself.
   animating (Moon Animator 2, Eclipse) and making VFX (Qwinkle's Part-Icles). In Blender:
   modeling, sculpting, UVs, painting, shading, animating, rigging, rendering with
   progress, nodes and more.
-- **Idle after 5 minutes** without changes, with a Zzz icon.
+- **Idle after 5 minutes** away from your keyboard and mouse, with a Zzz icon.
 - **Private when you want.** Hide script, place, file or object names, or never share
   certain places or .blend files.
 - **Light.** Native Rust app: about 10 MB on disk, about 5 MB of memory in the tray.

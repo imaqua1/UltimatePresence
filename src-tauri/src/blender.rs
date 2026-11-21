@@ -330,8 +330,6 @@ pub struct BlenderState {
     /// Last payload that wasn't a render (used when renders are hidden).
     last_non_render: Option<Payload>,
     pub last_request: Option<Instant>,
-    /// Last time what you're doing actually changed (heartbeats don't count).
-    pub last_change: Option<Instant>,
     task_key: String,
     pub task_since_ms: Option<i64>,
     pub running: bool,
@@ -363,10 +361,6 @@ pub fn apply(st: &mut BlenderState, body: &str, now: Instant) -> Outcome {
     if key != st.task_key {
         st.task_key = key;
         st.task_since_ms = Some(now_ms());
-    }
-    let changed = st.payload.as_ref() != Some(&p);
-    if changed {
-        st.last_change = Some(now);
     }
     if kind != Kind::Rendering {
         st.last_non_render = Some(p.clone());
@@ -403,7 +397,8 @@ pub fn should_time_out(st: &BlenderState, now: Instant) -> bool {
         && st.last_request.map_or(true, |t| now.duration_since(t) >= Duration::from_secs(4))
 }
 
-pub fn present(st: &BlenderState, s: &SourceSettings, now: Instant) -> Presented {
+/// `away`: no keyboard or mouse input for IDLE_AFTER. A render in progress never counts as idle.
+pub fn present(st: &BlenderState, s: &SourceSettings, away: bool) -> Presented {
     let none = |reason: Option<String>| Presented { activity: None, reason };
     let Some(mut p) = st.payload.as_ref() else { return none(None) };
     if s.application_id.is_empty() {
@@ -415,7 +410,7 @@ pub fn present(st: &BlenderState, s: &SourceSettings, now: Instant) -> Presented
             None => return none(Some("Renders are hidden".into())),
         }
     }
-    let idle = st.last_change.is_some_and(|t| now.duration_since(t) >= crate::studio::IDLE_AFTER);
+    let idle = away && categorize(p) != Kind::Rendering;
     if is_hidden_file(s, p.file.as_deref()) {
         return none(Some("Hidden while this file is open".into()));
     }
@@ -540,23 +535,26 @@ mod tests {
         let t0 = Instant::now();
         apply(&mut st, &serde_json::to_string(&serde_json::json!({"file":"secret.blend","mode":"SCULPT","version":"4.2"})).unwrap(), t0);
         let hidden = SourceSettings { hidden_places: vec!["secret".into()], ..own() };
-        assert!(present(&st, &hidden, t0).activity.is_none());
-        assert!(present(&st, &own(), t0).activity.is_some());
+        assert!(present(&st, &hidden, false).activity.is_none());
+        assert!(present(&st, &own(), false).activity.is_some());
         // Without a Discord application nothing is shown (it would appear under another app's name).
-        assert!(present(&st, &SourceSettings::default(), t0).activity.is_none());
+        assert!(present(&st, &SourceSettings::default(), false).activity.is_none());
     }
 
     #[test]
-    fn heartbeats_dont_reset_idle_and_closing_clears() {
+    fn idle_rendering_and_closing() {
         let mut st = BlenderState { running: true, ..Default::default() };
         let t0 = Instant::now();
         let body = r#"{"file":"a.blend","mode":"OBJECT","version":"4.2"}"#;
         assert!(matches!(apply(&mut st, body, t0), Outcome::Connected));
         assert!(matches!(apply(&mut st, body, t0 + Duration::from_secs(600)), Outcome::Same));
-        // Heartbeats don't count as changes, so after 5 minutes you're shown as Idle.
-        let a = present(&st, &own(), t0 + Duration::from_secs(601)).activity.unwrap();
+        // Away from the keyboard: Idle, with the Zzz icon and the Blender badge.
+        let a = present(&st, &own(), true).activity.unwrap();
         assert_eq!((a.details.as_deref(), a.large_image.as_deref()), (Some("Idle"), Some("icon_idle")));
         assert_eq!(a.small_image.as_deref(), Some("bl_blender"));
+        // A long render without input isn't idle.
+        apply(&mut st, r#"{"file":"a.blend","mode":"OBJECT","version":"4.2","rendering":true}"#, t0);
+        assert_eq!(present(&st, &own(), true).activity.unwrap().details.as_deref().map(|d| d.starts_with("Rendering")), Some(true));
         assert!(matches!(apply(&mut st, r#"{"closing":true}"#, t0), Outcome::Closed));
         assert!(st.payload.is_none());
     }

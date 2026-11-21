@@ -196,8 +196,8 @@ impl Core {
             return studio::Presented { activity: None, reason: None };
         }
         match id {
-            ROBLOX_STUDIO => studio::present(&self.studio, &s, Instant::now()),
-            BLENDER => blender::present(&self.blender, &s, Instant::now()),
+            ROBLOX_STUDIO => studio::present(&self.studio, &s, away()),
+            BLENDER => blender::present(&self.blender, &s, away()),
             // Planned sources have no runtime yet.
             _ => studio::Presented { activity: None, reason: None },
         }
@@ -405,4 +405,9 @@ pub fn on_discord_event(app: &AppHandle, ev: DiscordEvent) {
         DiscordEvent::Status(s) => c.discord = s,
         DiscordEvent::Log(level, msg) => c.push_log(level, msg),
     });
+}
+
+/// True when there has been no keyboard or mouse input for IDLE_AFTER.
+fn away() -> bool {
+    crate::platform::input_idle_for() >= studio::IDLE_AFTER
 }
