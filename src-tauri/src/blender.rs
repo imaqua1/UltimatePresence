@@ -1,4 +1,4 @@
-//! Blender source. The UltimatePresence add-on (blender/ultimate_presence.py) POSTs
+//! Blender source. The UltimatePresence add-on (integrations/blender/ultimate_presence.py) POSTs
 //! Blender's raw context to http://127.0.0.1:4455/blender whenever it changes, plus a
 //! heartbeat every 10 s. This module decides the category (modeling, sculpting, …) so
 //! detection can improve without reinstalling the add-on.

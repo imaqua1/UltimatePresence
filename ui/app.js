@@ -60,20 +60,6 @@ const APPS = {
       ["Qwinkle’s Part-Icles", "Needs the UltimatePresence plugin", "Making VFX", "ok"],
       ["Idle", "After 5 minutes without changes", "Idle", "ok"],
     ],
-    // Images this app's own Discord application needs (Rich Presence → Art Assets).
-    images: [
-      ["studio", "Badge: Roblox Studio’s icon"],
-      ["serverscript", "Editing a Script"],
-      ["clientscript", "Editing a LocalScript"],
-      ["modulescript", "Editing a ModuleScript"],
-      ["icon_building", "Building"],
-      ["icon_playtest", "Playtesting"],
-      ["icon_animating", "Animating"],
-      ["icon_vfx", "Making VFX"],
-      ["icon_combo", "Animating + VFX"],
-      ["icon_idle", "Idle"],
-    ],
-    iconsFolder: "icons-folder:roblox-studio",
     appName: "Roblox Studio",
   },
   blender: {
@@ -139,19 +125,6 @@ const APPS = {
       ["Grease Pencil", "Draw and edit modes", "Drawing", "ok"],
       ["Idle", "After 5 minutes without changes", "Idle", "ok"],
     ],
-    images: [
-      ["bl_blender", "Badge, plus scripting and video editing"],
-      ["bl_modeling", "Modeling"],
-      ["bl_sculpting", "Sculpting"],
-      ["bl_uv", "UV unwrapping"],
-      ["bl_painting", "Texture painting and drawing"],
-      ["bl_shading", "Shading"],
-      ["bl_animating", "Animating and rigging"],
-      ["bl_rendering", "Rendering"],
-      ["bl_nodes", "Compositing and geometry nodes"],
-      ["icon_idle", "Idle"],
-    ],
-    iconsFolder: "icons-folder:blender",
     appName: "Blender",
   },
   "substance-painter": {
@@ -370,7 +343,7 @@ async function refreshIntegrations() {
 const INTEGRATIONS = {
   "roblox-studio": {
     key: "studioPlugin", which: "studio-plugin", name: "Roblox Studio plugin",
-    status: { installed: "Installed", outdated: "Update ready", original: "Old StudioPresence plugin", missing: "Not installed" },
+    status: { installed: "Installed", outdated: "Update ready", original: "Older plugin installed", missing: "Not installed" },
     action: { outdated: "Update plugin", original: "Switch to our plugin", missing: "Install plugin" },
     hint: { installed: "Restart Roblox Studio after installing or updating.", original: "The old plugin works, but can’t see Eclipse Animator or Part-Icles.", missing: "Adds the plugin to Roblox Studio. Restart Studio afterwards." },
   },
@@ -1227,8 +1200,7 @@ function settingsPage() {
     h("section", { class: "section" },
       h("div", { class: "group" }, h("div", { class: "about" }, h("img", { src: "icon.svg", width: "84", height: "84", alt: "" }),
         h("div", {}, h("strong", { text: `UltimatePresence ${snap.version}` }),
-          h("p", {}, "Built on ", h("button", { class: "link", type: "button", onclick: () => invoke("open_external", { target: "original-project" }) }, "StudioPresence by iArxic"),
-            ". ISC licence. Instrument Serif and Figtree under the SIL Open Font Licence."))))));
+          h("p", {}, "Made by aqua. Free and open source under the ISC licence."))))));
 
   return { el, update(s) { autostart.checked = s.autostart; openOnLogin.checked = s.openWindowOnLogin; } };
 }

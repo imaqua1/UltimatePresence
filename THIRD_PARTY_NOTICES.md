@@ -1,10 +1,9 @@
 # Third-party notices
 
-## StudioPresence
+## StudioPresence (Roblox Studio plugin)
 
-UltimatePresence is derived from StudioPresence (https://github.com/iArxic/StudioPresence):
-it re-implements the StudioPresence server's protocol and behaviour, and uses the
-StudioPresence Discord application ID by default.
+The Roblox Studio plugin in `integrations/roblox-studio/` is based on the plugin from
+StudioPresence (https://github.com/iArxic/StudioPresence), used under this licence:
 
 ```
 ISC License

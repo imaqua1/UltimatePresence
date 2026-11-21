@@ -223,29 +223,6 @@ pub fn install_integration(app: AppHandle, which: String) -> Result<String, Stri
 pub fn open_external(app: AppHandle, target: String) -> Result<(), String> {
     let opener = app.opener();
     match target.as_str() {
-        "developer-portal" => opener.open_url("https://discord.com/developers/applications", None::<&str>),
-        "original-project" => opener.open_url("https://github.com/iArxic/StudioPresence", None::<&str>),
-        "studio-plugin" => opener.open_url("https://github.com/iArxic/StudioPresence#readme", None::<&str>),
-        t if t.starts_with("icons-folder") || t == "blender-addon" => {
-            // Bundled with the app; in a dev checkout fall back to the generated files.
-            let (bundled, dev) = match t {
-                "blender-addon" => ("blender-addon", "../blender"),
-                "icons-folder:blender" => ("discord-assets/blender", "../dist/discord-assets/blender"),
-                _ => ("discord-assets/roblox-studio", "../dist/discord-assets"),
-            };
-            let dir = app
-                .path()
-                .resource_dir()
-                .map(|d| d.join(bundled))
-                .ok()
-                .filter(|d| d.exists())
-                .or_else(|| {
-                    let p = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(dev);
-                    p.exists().then_some(p)
-                })
-                .ok_or("That folder is missing. Reinstall UltimatePresence to restore it.")?;
-            opener.open_path(dir.to_string_lossy(), None::<&str>)
-        }
         "settings-folder" => {
             let dir = lock_core(&app).settings_dir().ok_or("no settings folder")?;
             let _ = std::fs::create_dir_all(&dir);

@@ -39,7 +39,7 @@ fn plugin_source(app: &AppHandle) -> Option<PathBuf> {
 }
 
 fn blender_source(app: &AppHandle) -> Option<PathBuf> {
-    bundled(app, "blender-addon/ultimate_presence.py", "../blender/ultimate_presence.py")
+    bundled(app, "blender-addon/ultimate_presence.py", "../integrations/blender/ultimate_presence.py")
 }
 
 fn roblox_plugins_dir() -> Option<PathBuf> {

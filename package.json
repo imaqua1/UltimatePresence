@@ -2,15 +2,19 @@
   "name": "ultimate-presence",
   "private": true,
   "version": "0.6.0",
-  "description": "Tray app that shows what you're doing in Roblox Studio on Discord",
+  "description": "Discord Rich Presence for Roblox Studio and Blender",
   "license": "ISC",
   "scripts": {
     "tauri": "tauri",
     "dev": "tauri dev",
     "build": "tauri build",
-    "icons": "node tools/make-icons.mjs",
-    "plugin": "node tools/build-plugin.mjs",
-    "plugin:install": "node tools/build-plugin.mjs --install"
+    "release": "powershell -ExecutionPolicy Bypass -File scripts/build.ps1",
+    "plugin": "node scripts/build-plugin.mjs",
+    "plugin:install": "node scripts/build-plugin.mjs --install",
+    "discord-images": "node scripts/make-studio-icons.mjs && node scripts/make-blender-icons.mjs",
+    "logo": "node scripts/make-logo.mjs",
+    "icons": "node scripts/make-app-icons.mjs",
+    "preview": "node dev/preview/server.mjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "2.12.5",

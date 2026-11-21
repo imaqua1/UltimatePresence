@@ -29,14 +29,11 @@ jobs:
       - name: Install the Tauri CLI
         run: npm ci
 
+      - name: Roblox plugin (bundled with the app)
+        run: npm run plugin
+
       - name: Tests
         run: cargo test --manifest-path src-tauri/Cargo.toml
-
-      - name: Roblox plugin and Discord images
-        run: |
-          node tools/build-plugin.mjs
-          node tools/make-state-icons.mjs
-          node tools/make-blender-icons.mjs
 
       - name: Build, sign and publish
         uses: tauri-apps/tauri-action@v0
@@ -61,4 +58,4 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "${{ github.ref_name }}" dist/UltimatePresence.rbxmx blender/ultimate_presence.py --clobber
+        run: gh release upload "${{ github.ref_name }}" dist/UltimatePresence.rbxmx integrations/blender/ultimate_presence.py --clobber

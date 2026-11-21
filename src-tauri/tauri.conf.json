@@ -31,9 +31,7 @@
       "icons/icon.ico"
     ],
     "resources": {
-      "../dist/discord-assets/icon_*.png": "discord-assets/roblox-studio/",
-      "../dist/discord-assets/blender/*.png": "discord-assets/blender/",
-      "../blender/ultimate_presence.py": "blender-addon/ultimate_presence.py",
+      "../integrations/blender/ultimate_presence.py": "blender-addon/ultimate_presence.py",
       "../dist/UltimatePresence.rbxmx": "studio-plugin/UltimatePresence.rbxmx"
     },
     "windows": {

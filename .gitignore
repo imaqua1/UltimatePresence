@@ -8,3 +8,6 @@ reference/
 # Never commit signing keys
 *.key
 .tauri/
+
+# Local tooling
+.claude/
